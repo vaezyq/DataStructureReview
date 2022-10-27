@@ -6,4 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 #add_executable(DataStructureReview "Chapter12 SelectionAndSort/orderVectorMedian.cpp")
 
-add_executable(Heap  "Chapter10 Heap/PQ_test.cpp" "Chapter10 Heap/PQ.hpp" "Chapter10 Heap/PQ_ComplHeap.hpp")
+add_executable(Heap "Chapter10 Heap/PQ_test.cpp" "Chapter10 Heap/PQ.hpp" "Chapter10 Heap/PQ_ComplHeap.hpp")
+
+add_executable(BinaryTree "Chapter5 BinaryTree/BinNode.hpp" "Chapter5 BinaryTree/BinaryTreeTest.cpp")
