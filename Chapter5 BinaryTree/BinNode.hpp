@@ -1,5 +1,9 @@
 
-enum class RBColor {    //èŠ‚ç‚¹é¢œè‰²
+#include <stack>
+#include <queue>
+#include <iostream>
+
+enum class RBColor {    //½ÚµãÑÕÉ«
     RB_RED,
     RB_BLACK
 };
@@ -11,60 +15,33 @@ template<typename T>
 using bin_node_ptr = BinNode<T> *;
 
 template<typename T>
-class BinNode {      //äºŒå‰æ ‘èŠ‚ç‚¹æ¨¡æ¿ç±»
+class BinNode {      //¶ş²æÊ÷½ÚµãÄ£°åÀà
 public:
 
-    explicit BinNode(T data, const BinNode<T> *parent = nullptr, const BinNode<T> *lChild = nullptr,
-                     const BinNode<T> *rChild = nullptr, int height = 0, int npl = 1,
+    explicit BinNode(const T &data, bin_node_ptr<T> parent = nullptr, bin_node_ptr<T> lChild = nullptr,
+                     bin_node_ptr<T> rChild = nullptr, int height = 0, int npl = 1,
                      RBColor color = RBColor::RB_RED) : data(data), parent(parent), l_child(lChild), r_child(rChild),
                                                         height(height), npl(npl),
-                                                        color(color) {}
+                                                        color(color) {}           //½Úµã¹¹Ôìº¯Êı
 
     BinNode() : data(0), parent(parent), l_child(nullptr), r_child(nullptr), height(0), npl(-1),
-                color(RBColor::RB_RED) {}
+                color(RBColor::RB_RED) {}          //¹¹Ôìº¯Êı
 
+    bin_node_ptr<T> insert_as_lc(T const &e);         //×÷Îªµ±Ç°½ÚµãµÄ×óº¢×Ó²åÈëĞÂ½Úµã
 
-    int size();     //ç»Ÿè®¡å½“å‰èŠ‚ç‚¹çš„åç»§æ€»æ•°(ä»¥å½“å‰èŠ‚ç‚¹ä¸ºæ ¹çš„å­æ ‘è§„æ¨¡)
+    bin_node_ptr<T> insert_as_rc(T const &e);     //×÷Îªµ±Ç°½ÚµãµÄÓÒº¢×Ó²åÈëĞÂ½Úµã
 
-    bin_node_ptr<T> insert_as_lc(T const &e);         //ä½œä¸ºå½“å‰èŠ‚ç‚¹çš„å·¦å­©å­æ’å…¥æ–°èŠ‚ç‚¹
+    bin_node_ptr<T> successor() const;          //È¡µ±Ç°½ÚµãµÄÖ±½Óºó¼Ì
 
-    bin_node_ptr<T> insert_as_rc(T const &e);     //ä½œä¸ºå½“å‰èŠ‚ç‚¹çš„å³å­©å­æ’å…¥æ–°èŠ‚ç‚¹
+    bool operator<(BinNode<T> const &bn) { return data < bn.data; };     //Ğ¡ÓÚ
 
-    bin_node_ptr<T> succ() const;          //å–å½“å‰èŠ‚ç‚¹çš„ç›´æ¥åç»§
+    bool operator==(BinNode<T> const &bn) { return data == bn.data; }    //µÈÓÚ
 
-    template<class VST>
-    void traver_level(VST &visit);         //å­æ ‘å±‚æ¬¡éå†
-
-    template<class VST>
-    void traver_pre(VST &visit);         //å­æ ‘å…ˆåºéå†
-
-    template<class VST>
-    void traver_in(VST &visit);         //å­æ ‘ä¸­åºéå†
-
-    template<class VST>
-    void traver_post(VST &visit);      //å­æ ‘ååºéå†
-
-    bool operator<(BinNode<T> const &bn) { return data < bn.data; };     //å°äº
-
-    bool operator==(BinNode<T> const &bn) { return data == bn.data; }    //ç­‰äº
-
-    static int get_height(bin_node_ptr<T> const &bn) { return (bn) ? bn->height : -1; }
+    static int get_height(bin_node_ptr<T> bn) { return (bn) ? bn->height : -1; }
 
     T getData() const;
 
     void setData(T data);
-
-    const BinNode<T> *getParent() const;
-
-    void setParent(const BinNode<T> *parent);
-
-    const BinNode<T> *getLChild() const;
-
-    void setLChild(const BinNode<T> *lChild);
-
-    const BinNode<T> *getRChild() const;
-
-    void setRChild(const BinNode<T> *rChild);
 
     int getHeight() const;
 
@@ -78,25 +55,63 @@ public:
 
     void setColor(RBColor color);
 
+    bin_node_ptr<T> getParent() const;
+
+    void setParent(bin_node_ptr<T> parent);
+
+    bin_node_ptr<T> getLChild() const;
+
+    void setLChild(bin_node_ptr<T> lChild);
+
+    bin_node_ptr<T> getRChild() const;
+
+    void setRChild(bin_node_ptr<T> rChild);
+
+    template<class VST>
+    void traver_level(VST &visit);         //×ÓÊ÷²ã´Î±éÀú
+
+    template<class VST>
+    static void traver_pre_r(bin_node_ptr<T> x, VST &visit);         //×ÓÊ÷ÏÈĞò±éÀú
+
+    template<class VST>
+    static void traver_pre_I_S(bin_node_ptr<T> x, VST &visit);      //×ÓÊ÷ÏÈĞò±éÀú£ºÊ¹ÓÃÕ»Ä£Äâµİ¹é
+
+    template<class VST>
+    static void traver_pre_I_by_ac_func(bin_node_ptr<T> x, VST &visit);        //×ÓÊ÷ÏÈĞò±éÀú£¬Í¨¹ı¸¨Öúº¯ÊıÊµÏÖµü´ú·ÃÎÊ
+
+    template<class VST>
+    static void traver_in_r(bin_node_ptr<T> x, VST &visit);         //µİ¹é°æ×ÓÊ÷ÖĞĞò±éÀú
+
+    template<class VST>
+    static void traver_in_I_by_ac_func(bin_node_ptr<T> x, VST &visit);    //×ÓÊ÷ÖĞĞò±éÀú£¬Í¨¹ı¸¨Öúº¯ÊıÊµÏÖµü´ú·ÃÎÊ
+
+    template<class VST>
+    static void traver_in_I_by_stack(bin_node_ptr<T> x, VST &visit);         //×ÓÊ÷ÖĞĞò±éÀú£¬Í¨¹ıÕ»Ä£Äâ£¬²»ÔÚĞèÒª¸¨Öúº¯Êı
+
+    template<class VST>
+    void traver_post(VST &visit);      //×ÓÊ÷ºóĞò±éÀú
+
 
 private:
-    T data;     //èŠ‚ç‚¹å­˜å‚¨çš„æ•°å€¼
-    bin_node_ptr<T> parent;    //çˆ¶äº²èŠ‚ç‚¹
-    bin_node_ptr<T> l_child;     //å·¦å­©å­èŠ‚ç‚¹
-    bin_node_ptr<T> r_child;    //å³å­©å­èŠ‚ç‚¹
-    int height;        //èŠ‚ç‚¹çš„é«˜åº¦
-    int npl;        //å·¦å¼å †éœ€è¦ä½¿ç”¨çš„éç©ºè·¯å¾„é•¿åº¦(null Path Length)
-    RBColor color;       //é¢œè‰²(çº¢é»‘æ ‘)
+    T data;     //½Úµã´æ´¢µÄÊıÖµ
+    bin_node_ptr<T> parent;    //¸¸Ç×½Úµã
+    bin_node_ptr<T> l_child;     //×óº¢×Ó½Úµã
+    bin_node_ptr<T> r_child;    //ÓÒº¢×Ó½Úµã
+    int height;        //½ÚµãµÄ¸ß¶È
+    int npl;        //×óÊ½¶ÑĞèÒªÊ¹ÓÃµÄ·Ç¿ÕÂ·¾¶³¤¶È(null Path Length)
+    RBColor color;       //ÑÕÉ«(ºìºÚÊ÷)
 };
 
 
 template<typename T>
-bin_node_ptr<T> BinNode<T>::insert_as_lc(const T &e) {    //å°†eä½œä¸ºå½“å‰èŠ‚ç‚¹çš„å·¦å­©å­æ’å…¥äºŒå‰æ ‘
+bin_node_ptr<T> BinNode<T>::insert_as_lc(const T &e) {    //½«e×÷Îªµ±Ç°½ÚµãµÄ×óº¢×Ó²åÈë¶ş²æÊ÷
+
     return this->l_child = new BinNode<T>(e, this);
 }
 
+
 template<typename T>
-bin_node_ptr<T> BinNode<T>::insert_as_rc(const T &e) {     //å°†eä½œä¸ºå½“å‰èŠ‚ç‚¹çš„å³å­©å­æ’å…¥
+bin_node_ptr<T> BinNode<T>::insert_as_rc(const T &e) {     //½«e×÷Îªµ±Ç°½ÚµãµÄÓÒº¢×Ó²åÈë
     return this->r_child = new BinNode<T>(e, this);
 }
 
@@ -108,36 +123,6 @@ T BinNode<T>::getData() const {
 template<typename T>
 void BinNode<T>::setData(T data) {
     BinNode::data = data;
-}
-
-template<typename T>
-const BinNode<T> *BinNode<T>::getParent() const {
-    return parent;
-}
-
-template<typename T>
-void BinNode<T>::setParent(const BinNode<T> *parent) {
-    BinNode::parent = parent;
-}
-
-template<typename T>
-const BinNode<T> *BinNode<T>::getLChild() const {
-    return l_child;
-}
-
-template<typename T>
-void BinNode<T>::setLChild(const BinNode<T> *lChild) {
-    l_child = lChild;
-}
-
-template<typename T>
-const BinNode<T> *BinNode<T>::getRChild() const {
-    return r_child;
-}
-
-template<typename T>
-void BinNode<T>::setRChild(const BinNode<T> *rChild) {
-    r_child = rChild;
 }
 
 template<typename T>
@@ -170,41 +155,253 @@ void BinNode<T>::setColor(RBColor color) {
     BinNode::color = color;
 }
 
+
 template<typename T>
 template<class VST>
-void BinNode<T>::traver_pre(VST &visit) {
+void BinNode<T>::traver_pre_r(bin_node_ptr<T> x, VST &visit) {    //´«Èë¸ù½Úµãx¡¢·ÃÎÊº¯Êıvisit
+    if (!x) {          // µİ¹é»ù£º´«Èë¿ÕÊ÷
+        return;
+    }
+    visit(x->getData());     //·ÃÎÊ½Úµãx
+    traver_pre_r(x->getLChild(), visit);      //µİ¹é·ÃÎÊ×ó×ÓÊ÷
+    traver_pre_r(x->getRChild(), visit);      //µİ¹é·ÃÎÊÓÒ×ÓÊ÷
+}
+
+
+template<typename T>
+template<class VST>
+void BinNode<T>::traver_pre_I_S(bin_node_ptr<T> x, VST &visit) {
+    std::stack<bin_node_ptr<T>> S;    //Õ»ÓÃÓÚ±£´æº¢×Ó½Úµã
+    if (x) { S.push(x); }             //½Úµã·Ç¿ÕÔòÈëÕ»
+    while (!S.empty()) {            //µ±Õ»·Ç¿ÕÊ±·´¸´µÄ
+        x = S.top(), S.pop();
+        visit(x->getData());     //µ¯³öÍ·½Úµã²¢·ÃÎÊ
+        if (x->getRChild()) { S.push(x->getRChild()); }  //ÈôÓĞÓÒº¢×ÓÔòÈëÕ»
+        if (x->getLChild()) { S.push(x->getLChild()); }   //ÈôÓĞ×óº¢×ÓÔòÈëÕ»
+    }
 }
 
 template<typename T, typename VST>
-void traver_pre_r(bin_node_ptr<T> x, VST &visit) {
-    if (!x) {
-        return;
-    }
-    visit(x);
-    traver_R(x->getLChild(), visit);
-    traver_R(x->getRChild(), visit);
+void traver_in_r(bin_node_ptr<T> x, VST &visit) {     //´«Èë¸ù½ÚµãÓë·ÃÎÊº¯Êı
+    if (!x) { return; }      //µİ¹é»ù£ºµÖ´ï¿Õ½Úµã
+    traver_R(x->getLChild(), visit);    //µİ¹é·ÃÎÊ×ó×ÓÊ÷
+    visit(x);       //·ÃÎÊ½Úµãx
+    traver_R(x->getRChild(), visit);    //µİ¹é·ÃÎÊÓÒ×ÓÊ÷
 }
 
+
 template<typename T, typename VST>
-void traver_in_r(bin_node_ptr<T> x, VST &visit) {
-    if (!x) {
-        return;
+[[noreturn]]
+void traver_in_v2(bin_node_ptr<T> x, VST &visit) {    //´«Èë¸ù½ÚµãÓë·ÃÎÊº¯Êı
+    std::stack<bin_node_ptr<T>> S;
+    while (true) {
+        if (x) { //Ã»ÓĞµÖ´ï¿Õ½Úµã
+            S.push(x);   //½«×ó²àÌÙ½Úµã¶¼Ñ¹ÈçÕ»ÖĞ
+            x = x->getLChild();     //¼ÌĞøÏò×óÌ½Ë÷
+        } else if (!S.empty()) {
+            x = S.top(), visit(x->getData());  //µ¯³öÕ»²¢·ÃÎÊÊı¾İ
+            x = x->getRChild();    //×ªÈëÓÒº¢×Ó·ÃÎÊ
+        } else {
+            break;    //±éÀúÍê³É
+        }
     }
-    traver_R(x->getLChild(), visit);
-    visit(x);
-    traver_R(x->getRChild(), visit);
 }
+
+template<typename T>
+bin_node_ptr<T> BinNode<T>::successor() const {
+    auto s = this;     //ÓÃÓÚ¼ÇÂ¼ºó¼ÌµÄÁÙÊ±±äÁ¿
+    if (this->getRChild()) {     //Èç¹ûÓĞÓÒº¢×Ó,ÔòÖ±½Óºó¼Ì±ØÔÚÓÒ×ÓÊ÷ÖĞ
+        s = this->getLChild();       //´ÓÓÒ×ÓÊ÷½Úµã¿ªÊ¼
+        while (s->getLChild())  {      //ÓĞ×óº¢×Ó£¬Ôò²»Í£µÄÏò×ó×ß
+            s = s->getLChild();
+        }
+    }
+}
+
+template<typename T>
+template<class VST>
+void BinNode<T>::traver_level(VST &visit) {
+    std::queue<bin_node_ptr<T>> Q;       //¸¨Öú¶ÓÁĞ
+    Q.push(this);     //¸ù½ÚµãÈë¶Ó
+
+    while (!Q.empty()) {        //¶ÓÁĞ·Ç¿Õ
+        auto x = Q.front();
+        Q.pop();
+        visit(x->getData());     //µ¯³öÍ·½ÚµãÔªËØ²¢·ÃÎÊ
+        if (x->getLChild) {
+            Q.push(x->getLChild);   //¶ÓÁĞ¼ÓÈë·Ç¿Õ×óº¢×Ó
+        }
+        if (x->getLRhild) {
+            Q.push(x->getLRhild);    //¶ÓÁĞ¼ÓÈë·Ç¿ÕÓÒº¢×Ó
+        }
+    }
+}
+
+
+template<typename T, typename VST>
+[[noreturn]]
+void traver_in_v3(bin_node_ptr<T> x, VST &visit) {    //´«Èë¸ù½ÚµãÓë·ÃÎÊº¯Êı
+    bool back_track = false;      //Ç°Ò»²½ÊÇ·ñÎª»ØËİ£º¼´´ÓÓÒ×ÓÊ÷»ØËİ»ØÀ´
+    while (true) {
+        if ((!back_track) && (x->getLChild())) {    //²»ÊÇ»ØËİÇÒÓĞ×óº¢×Ó
+            x = x->getLChild();  //²»Í£Ïò×ó²àÌ½Ë÷
+        } else {         //Ã»ÓĞ×ó×ÓÊ÷»òÕß¸Õ¸ÕÒÑ¾­»ØËİ
+            visit(x->getData());        //·ÃÎÊ¸Ã½Úµã
+            if (x->getRChild()) {  //ÓĞÓÒº¢×Ó
+                x = x->getRChild();        //ÉîÈëÓÒ×ÓÊ÷±éÀú
+                back_track = false;
+            } else {
+                if (!(x = x->succ())) {
+                    break;
+                }
+                back_track = true;
+            }
+        }
+    }
+}
+
 
 template<typename T, typename VST>
 void traver_post_r(bin_node_ptr<T> x, VST &visit) {
-    if (!x) {
-        return;
-    }
+    if (!x) { return; }
     traver_R(x->getLChild(), visit);
     traver_R(x->getRChild(), visit);
     visit(x);
 }
 
+template<typename T>
+void goto_HLVFL(std::stack<bin_node_ptr<T>> &S) {
+    while (auto x = S.top()) {             //·´¸´µÄ¼ì²éÕ»¶¥½Úµã
+        if (x->getLChild()) {     //Èç¹ûÓĞ×óº¢×Ó£¬ÔòÏò×ó×ß
+            if (x->getRChild()) {   //Èç¹ûÓĞÓÒº¢×Ó£¬ÓÒº¢×ÓÈëÕ»
+                S.push(x->getRChild());
+            }
+            S.push(x->getLChild());   //×óº¢×ÓÈëÕ»
+        } else {    //Ã»ÓĞ×óº¢×Ó£¬²ÅÏòÓÒ×ß
+            S.push(x->getRChild());    //ÓÒº¢×ÓÈëÕ»
+        }
+    }
+    S.pop();    //µ¯³öÕ»¶¥µÄ¿ÕÔªËØ
+}
+
+template<typename T, typename VST>
+void traver_post_v(bin_node_ptr<T> x, VST &visit) {
+    std::stack<bin_node_ptr<T>> S;
+    S.push(x);     //¸ú½ÚµãÈëÕ»
+    while (!S.empty()) {
+        if (S.top() != x->getParent()) {     //Õ»¶¥²»ÊÇµ±Ç°½ÚµãµÄ¸¸½Úµã£¬ÔòËµÃ÷Õ»¶¥Ò»¶¨ÊÇÆäÓÒĞÖµÜ×ÓÊ÷
+            goto_HLVFL(S);     //¶ÔÓÒĞÖµÜ×ÓÊ÷Ö´ĞĞ±éÀú
+        }
+        x = S.top();
+        S.pop();
+        visit(x->getData());      //µ¯³öÕ»¶¥Êı¾İ²¢·ÃÎÊ
+    }
+}
+
+
+template<typename T>
+bin_node_ptr<T> BinNode<T>::getParent() const {
+    return parent;
+}
+
+template<typename T>
+void BinNode<T>::setParent(bin_node_ptr<T> parent) {
+    BinNode::parent = parent;
+}
+
+template<typename T>
+bin_node_ptr<T> BinNode<T>::getLChild() const {
+    return l_child;
+}
+
+template<typename T>
+void BinNode<T>::setLChild(bin_node_ptr<T> lChild) {
+    l_child = lChild;
+}
+
+template<typename T>
+bin_node_ptr<T> BinNode<T>::getRChild() const {
+    return r_child;
+}
+
+template<typename T>
+void BinNode<T>::setRChild(bin_node_ptr<T> rChild) {
+    r_child = rChild;
+}
+
+template<class T, class VST>
+void visit_along_left_branch(bin_node_ptr<T> x, std::stack<bin_node_ptr<T>> &S, VST &visit) {
+    while (x) {
+        visit(x->getData());        //·ÃÎÊÊı¾İ
+        if (x->getRChild()) {   //Èç¹ûÓĞÓÒº¢×Ó
+            S.push(x->getRChild());     //ÓÒº¢×ÓÈëÕ»
+        }
+        x = x->getLChild();  //²»¶ÏÏò×ó
+    }
+}
+
+template<typename T>
+template<class VST>
+void BinNode<T>::traver_pre_I_by_ac_func(bin_node_ptr<T> x, VST &visit) {
+    std::stack<bin_node_ptr<T>> S;
+    while (true) {
+        visit_along_left_branch(x, S, visit);
+        if (S.empty()) {
+            break;
+        }
+        x = S.top(), S.pop();   //µ¯³öÍ·½áµã£¬¼´×îºóÎ´ÓÒ×ÓÊ÷ Ê÷¸ù½áµã
+    }
+}
+
+template<typename T>
+template<class VST>
+void BinNode<T>::traver_in_r(bin_node_ptr<T> x, VST &visit) {
+    if (!x) { return; }
+    traver_in_r(x->getLChild(), visit);
+    visit(x->getData());
+    traver_in_r(x->getRChild(), visit);
+}
+
+template<typename T>
+void go_along_left_branch(bin_node_ptr<T> x, std::stack<bin_node_ptr<T>> &S) {
+    while (x) {  //µ±½Úµãx·Ç¿ÕÊ±
+        S.push(x);   //½«×óº¢×ÓÍÆÈëÕ»ÖĞ
+        x = x->getLChild();   //²»Í£Ïò×óÌ½Ë÷
+    }
+}
+
+
+template<typename T>
+template<class VST>
+void BinNode<T>::traver_in_I_by_ac_func(bin_node_ptr<T> x, VST &visit) {
+    std::stack<bin_node_ptr<T>> S;
+    while (true) {
+        go_along_left_branch(x, S);
+        if (S.empty()) { break; };
+        x = S.top();
+        S.pop();
+        visit(x->getData());
+        x = x->getRChild();
+    }
+}
+
+template<typename T>
+template<class VST>
+void BinNode<T>::traver_in_I_by_stack(bin_node_ptr<T> x, VST &visit) {
+    std::stack<bin_node_ptr<T>> S;
+    while (true) {
+        if (x) {
+            S.push(x);
+            x = x->getLChild();
+        } else if (!S.empty()) {
+            x = S.top(), S.pop();
+            visit(x->getData());
+            x = x->getRChild();
+        } else {
+            break;
+        }
+    }
+}
 
 
 
