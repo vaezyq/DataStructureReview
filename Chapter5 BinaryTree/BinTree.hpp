@@ -3,7 +3,7 @@
 
 template<typename T>
 class BinTree {
-private:
+protected:
     int m_size;        //树的规模
     bin_node_ptr<T> m_root;    //树根节点
     virtual int update_height(bin_node_ptr<T> &x);    //更新节点x的高度
@@ -13,7 +13,7 @@ private:
 public:
     BinTree() : m_size(0), m_root(nullptr) {}    //默认构造函数
 
-    ~BinTree() { if (0 < m_size) { remove(m_root); }; }      //析构函数
+    ~BinTree() { if (0 < m_size) { remove(m_root); }}      //析构函数
 
     [[nodiscard]]
     int size() const { return m_size; }        //返回规模
@@ -76,6 +76,11 @@ public:
                 case 2:
                     BinNode<T>::traver_in_I_by_stack(m_root, visit);
                     break;
+                case 3:
+                    BinNode<T>::traver_in_I_by_successor_ac_func(m_root, visit);     //通过后继辅助函数实现迭代版中序遍历
+                    break;
+                case 4:
+                    BinNode<T>::traver_in_I_by_successor_no_back(m_root, visit); //通过后继辅助函数访问，不再需要回溯标志
             }
         }
     }
@@ -89,13 +94,15 @@ public:
         return m_root && bt->m_root && (m_root == bt.m_root);
     }
 
-    static BinTree<T> construct_bin_tree_by_pre_in(std::vector<T> pre, std::vector<T> in);
+//    static BinTree<T> construct_bin_tree_by_pre_in(std::vector<T> pre, std::vector<T> in);
 
 };
 
 template<typename T>
 int BinTree<T>::update_height(bin_node_ptr<T> &x) {
-    auto height = 1 + std::max(BinNode<T>::get_height(x->getLChild()), BinNode<T>::get_height(x->getRChild()));
+    auto height{0};
+    if (x->getLChild()) { height = std::max(height, x->getLChild()->getHeight()); }
+    if (x->getRChild()) { height = std::max(height, x->getRChild()->getHeight()); }
     x->setHeight(height);
     return height;
 }
@@ -111,7 +118,7 @@ void BinTree<T>::update_height_above(bin_node_ptr<T> x) {
 template<typename T>
 bin_node_ptr<T> BinTree<T>::insert_as_root(const T &e) {
     m_size = 1;
-    return m_root = new BinNode<T>(e);         //将e作为根节点插入空的二叉树
+    return m_root = std::make_shared<BinNode<T>>(e);   //将e作为根节点插入空的二叉树
 }
 
 
@@ -166,8 +173,6 @@ int BinTree<T>::remove_at(bin_node_ptr<T> x) {
         return 0;
     }
     int n = remove_at(x->getLChild()) + remove_at(x->getRChild());    //递归释放左右子树
-    delete x;
-    x = nullptr;   //释放x
     return n;
 }
 
@@ -204,10 +209,16 @@ BinTree<T> *BinTree<T>::secede(bin_node_ptr<T> &x) {
     return S;
 }
 
-template<typename T>
-BinTree<T> BinTree<T>::construct_bin_tree_by_pre_in(std::vector<T> pre, std::vector<T> in) {
-
-}
+//template<typename T>
+//BinTree<T>
+//BinTree<T>::construct_bin_tree_by_pre_in(std::vector<T> pre, std::vector<T> in, int start, int mid, int end) {
+//    if (start > end) { return; }
+//    auto head= std::make_shared<BinNode<T>>(mid);
+//    auto left= construct_bin_tree_by_pre_in()
+//
+//
+//
+//}
 
 
 
