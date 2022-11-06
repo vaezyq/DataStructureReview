@@ -435,13 +435,36 @@ bool has_right_child(std::shared_ptr<BinNode<T>> &x) { return !x.getRChild(); } 
 template<typename T>
 bool has_children(std::shared_ptr<BinNode<T>> &x) { return has_left_child(x) || has_right_child(x); } //至少有一个孩子
 
+template<typename T>
+bool has_both_children(std::shared_ptr<BinNode<T>> &x) { return has_left_child(x) && has_right_child(x); }  //拥有两个孩子
 
 
+template<typename T>
+bool is_leaf(std::shared_ptr<BinNode<T>> &x) { return !has_right_child(x); }   //判断是否为叶子节点
 
+template<typename T>
+std::shared_ptr<BinNode<T>> sibling(const std::shared_ptr<BinNode<T>> &x) {  //寻找兄弟节点
+    if (is_left_child(x)) {
+        return x->getParent.getRChild();
+    } else {
+        return x->getParent.getLChild();
+    }
+}
 
+template<typename T>
+std::shared_ptr<BinNode<T>> uncle(const std::shared_ptr<BinNode<T>> &x) {    //寻找叔叔节点
+    return sibling(x.getParent);
+}
 
-
-
+template<typename T>
+void set_parent_child(std::shared_ptr<BinNode<T>> &x, const std::shared_ptr<BinNode<T>> &res) {
+    if (is_root(x)) {
+        x = res;
+    } else {
+        if (is_left_child(x)) { x->setLChild(res); }
+        else { x->setRChild(res); }
+    };
+}
 
 
 

@@ -58,9 +58,13 @@ bin_node_ptr<T> AVL<T>::insert(const T &e) {
     auto xx = x = std::make_shared<BinNode<T>>({e, this->m_hot});
     for (auto g = this->m_hot; g; g = g->getParent()) {
         if (!avl_balanced(x)) {    //一旦发现失衡
-
+            set_parent_child(g, rotate_at(taller_child(taller_child(g))));
+            break;
+        } else {
+            update_height(g);
         }
     }
+    return xx;
 }
 
 template<typename T>
@@ -83,5 +87,46 @@ AVL<T>::connect34(bin_node_ptr<T> a, bin_node_ptr<T> b, bin_node_ptr<T> c, bin_n
 
 template<typename T>
 bin_node_ptr<T> AVL<T>::rotate_at(bin_node_ptr<T> &x) {
-
+    auto p = x.getParent(), g = p.getParent();     //得到父亲节点、祖父节点
+    if (is_left_child(x)) {     //zig
+        if (is_left_child(x)) { //zig
+            p.setParent(g.getParent());  //向上联结
+            return connect34(x, p, g, x->getLChild(), x->getRChild(), p->getRChild(), g->getRChild());
+        } else {       //zag
+            x.setParent(g.getParent());   //向上联结
+            return connect34(p, x, g, p->getLChild(), x->getLChild(), x->getRChild(), g->getRChild());
+        }
+    } else {       //zag
+        if (IsRChild(x)) { /* zag-zag */
+            p.setParent(g.getParent());  //向上联结
+            return connect34(g, p, x, g->getLChild(), p->getLChild(), x->getLChild(), x->getRChild());
+        } else { /* zag-zig */
+            x.setParent(g.getParent());   //向上联结
+            return connect34(g, x, p, g->getLChild(), x->getLChild(), x->getRChild(), p->getRChild);
+        }
+    }
 }
+
+template<typename T>
+std::optional<std::shared_ptr<BinNode<T>>> AVL<T>::remove(const T &e) {
+    std::optional<std::shared_ptr<BinNode<T>>> res;
+    auto &x = search(e);      //查找目标节点
+    if (!x) { return res; }     //目标节点已经存在
+    res = remove_at(x, this->m_hot);
+    this->m_size--;
+    for (auto g = this->m_hot; g; g = g->getParent()) {
+        if (!avl_balanced(g)) {
+            set_parent_child(g, rotate_at(taller_child(taller_child(g))));
+
+        }
+        update_height(g);
+    }
+    return res;
+}
+
+
+
+
+
+
+
